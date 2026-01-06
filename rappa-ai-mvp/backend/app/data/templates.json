@@ -1,0 +1,1351 @@
+{
+  "templates": [
+    {
+      "id": "sale_deed",
+      "name": "Sale Deed",
+      "description": "Property sale deed document for real estate transactions",
+      "category": "real_estate",
+      "country": "india",
+      "fields": [
+        {
+          "name": "deed_number",
+          "label": "Deed Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Registration number or deed number"
+        },
+        {
+          "name": "registration_date",
+          "label": "Registration Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of registration"
+        },
+        {
+          "name": "seller_name",
+          "label": "Seller Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the property seller"
+        },
+        {
+          "name": "buyer_name",
+          "label": "Buyer Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the property buyer"
+        },
+        {
+          "name": "property_address",
+          "label": "Property Address",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Complete address of the property being sold"
+        },
+        {
+          "name": "survey_number",
+          "label": "Survey Number",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Survey number or plot number"
+        },
+        {
+          "name": "property_area",
+          "label": "Property Area",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Area of property (in sq ft, sq meters, acres, etc.)"
+        },
+        {
+          "name": "sale_consideration",
+          "label": "Sale Consideration Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Total sale price/consideration amount"
+        },
+        {
+          "name": "stamp_duty_paid",
+          "label": "Stamp Duty Paid",
+          "type": "currency",
+          "required": false,
+          "extraction_hint": "Stamp duty amount paid"
+        },
+        {
+          "name": "witness_names",
+          "label": "Witness Names",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Names of witnesses to the deed"
+        }
+      ],
+      "prompt_template": "Extract information from this Sale Deed document. Focus on: Deed number, registration date, seller and buyer names, property address, survey number, property area, sale consideration amount, stamp duty, and witness names."
+    },
+    {
+      "id": "rent_agreement",
+      "name": "Rent Agreement",
+      "description": "Residential or commercial rental/lease agreement",
+      "category": "real_estate",
+      "country": "india",
+      "fields": [
+        {
+          "name": "agreement_date",
+          "label": "Agreement Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date when agreement was executed"
+        },
+        {
+          "name": "landlord_name",
+          "label": "Landlord Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the property owner/landlord"
+        },
+        {
+          "name": "tenant_name",
+          "label": "Tenant Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the tenant"
+        },
+        {
+          "name": "property_address",
+          "label": "Property Address",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Address of the rental property"
+        },
+        {
+          "name": "monthly_rent",
+          "label": "Monthly Rent",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Monthly rental amount"
+        },
+        {
+          "name": "security_deposit",
+          "label": "Security Deposit",
+          "type": "currency",
+          "required": false,
+          "extraction_hint": "Security deposit amount"
+        },
+        {
+          "name": "lease_period",
+          "label": "Lease Period",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Duration of lease (e.g., 11 months, 2 years)"
+        },
+        {
+          "name": "start_date",
+          "label": "Lease Start Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Lease commencement date"
+        },
+        {
+          "name": "end_date",
+          "label": "Lease End Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Lease expiry date"
+        }
+      ],
+      "prompt_template": "Extract information from this Rent Agreement. Focus on: Agreement date, landlord and tenant names, property address, monthly rent, security deposit, lease period, start and end dates."
+    },
+    {
+      "id": "property_tax_receipt",
+      "name": "Property Tax Receipt",
+      "description": "Municipal property tax payment receipt",
+      "category": "real_estate",
+      "country": "india",
+      "fields": [
+        {
+          "name": "receipt_number",
+          "label": "Receipt Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Tax receipt or acknowledgement number"
+        },
+        {
+          "name": "payment_date",
+          "label": "Payment Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of tax payment"
+        },
+        {
+          "name": "property_owner_name",
+          "label": "Property Owner Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the property owner"
+        },
+        {
+          "name": "property_address",
+          "label": "Property Address",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Address of the property"
+        },
+        {
+          "name": "property_id",
+          "label": "Property ID",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Municipal property identification number"
+        },
+        {
+          "name": "tax_year",
+          "label": "Tax Year/Period",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Financial year or period for which tax is paid"
+        },
+        {
+          "name": "tax_amount",
+          "label": "Tax Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Total property tax amount paid"
+        },
+        {
+          "name": "municipal_corporation",
+          "label": "Municipal Corporation",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Name of municipal authority"
+        }
+      ],
+      "prompt_template": "Extract information from this Property Tax Receipt. Focus on: Receipt number, payment date, property owner name, property address, property ID, tax year/period, tax amount, and municipal corporation name."
+    },
+    {
+      "id": "noc_certificate",
+      "name": "NOC (No Objection Certificate)",
+      "description": "No Objection Certificate for property or other purposes",
+      "category": "real_estate",
+      "country": "india",
+      "fields": [
+        {
+          "name": "noc_number",
+          "label": "NOC Number",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "NOC reference or certificate number"
+        },
+        {
+          "name": "issue_date",
+          "label": "Issue Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of NOC issuance"
+        },
+        {
+          "name": "issued_by",
+          "label": "Issued By",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Authority or person issuing the NOC"
+        },
+        {
+          "name": "issued_to",
+          "label": "Issued To",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Person or entity to whom NOC is issued"
+        },
+        {
+          "name": "property_address",
+          "label": "Property Address",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Property address if applicable"
+        },
+        {
+          "name": "purpose",
+          "label": "Purpose of NOC",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Purpose for which NOC is issued"
+        }
+      ],
+      "prompt_template": "Extract information from this NOC. Focus on: NOC number, issue date, issuing authority, issued to, property address if applicable, and purpose of NOC."
+    },
+    {
+      "id": "lease_agreement",
+      "name": "Lease Agreement",
+      "description": "Commercial or residential lease agreement",
+      "category": "real_estate",
+      "country": "india",
+      "fields": [
+        {
+          "name": "agreement_number",
+          "label": "Agreement Number",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Lease agreement reference number"
+        },
+        {
+          "name": "agreement_date",
+          "label": "Agreement Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of lease execution"
+        },
+        {
+          "name": "lessor_name",
+          "label": "Lessor Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the lessor/property owner"
+        },
+        {
+          "name": "lessee_name",
+          "label": "Lessee Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the lessee/tenant"
+        },
+        {
+          "name": "property_description",
+          "label": "Property Description",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Description and address of leased property"
+        },
+        {
+          "name": "lease_term",
+          "label": "Lease Term",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Duration of lease period"
+        },
+        {
+          "name": "monthly_lease_amount",
+          "label": "Monthly Lease Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Monthly lease payment"
+        },
+        {
+          "name": "security_deposit",
+          "label": "Security Deposit",
+          "type": "currency",
+          "required": false,
+          "extraction_hint": "Security deposit amount"
+        }
+      ],
+      "prompt_template": "Extract information from this Lease Agreement. Focus on: Agreement number, date, lessor and lessee names, property description, lease term, monthly lease amount, and security deposit."
+    },
+    {
+      "id": "bank_statement",
+      "name": "Bank Statement",
+      "description": "Bank account statement with transaction details",
+      "category": "banking",
+      "country": "india",
+      "fields": [
+        {
+          "name": "account_holder_name",
+          "label": "Account Holder Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the account holder"
+        },
+        {
+          "name": "account_number",
+          "label": "Account Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Bank account number"
+        },
+        {
+          "name": "bank_name",
+          "label": "Bank Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the bank"
+        },
+        {
+          "name": "branch_name",
+          "label": "Branch Name",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Bank branch name or location"
+        },
+        {
+          "name": "ifsc_code",
+          "label": "IFSC Code",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "11-character IFSC code"
+        },
+        {
+          "name": "statement_period_from",
+          "label": "Statement Period From",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Start date of statement period"
+        },
+        {
+          "name": "statement_period_to",
+          "label": "Statement Period To",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "End date of statement period"
+        },
+        {
+          "name": "opening_balance",
+          "label": "Opening Balance",
+          "type": "currency",
+          "required": false,
+          "extraction_hint": "Account balance at start of period"
+        },
+        {
+          "name": "closing_balance",
+          "label": "Closing Balance",
+          "type": "currency",
+          "required": false,
+          "extraction_hint": "Account balance at end of period"
+        }
+      ],
+      "prompt_template": "Extract key information from this bank statement. Focus on: Account holder name, account number, bank name, IFSC code, statement period dates, and opening/closing balances."
+    },
+    {
+      "id": "cheque",
+      "name": "Cheque",
+      "description": "Bank cheque payment instrument",
+      "category": "banking",
+      "country": "india",
+      "fields": [
+        {
+          "name": "cheque_number",
+          "label": "Cheque Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Cheque serial number"
+        },
+        {
+          "name": "cheque_date",
+          "label": "Cheque Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date on the cheque"
+        },
+        {
+          "name": "payee_name",
+          "label": "Pay To / Payee Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the payee"
+        },
+        {
+          "name": "amount_in_words",
+          "label": "Amount in Words",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Amount written in words"
+        },
+        {
+          "name": "amount_in_figures",
+          "label": "Amount in Figures",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Amount in numeric format"
+        },
+        {
+          "name": "account_number",
+          "label": "Account Number",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Account number printed on cheque"
+        },
+        {
+          "name": "bank_name",
+          "label": "Bank Name",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Name of the issuing bank"
+        },
+        {
+          "name": "ifsc_code",
+          "label": "IFSC Code",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "IFSC code of the bank branch"
+        }
+      ],
+      "prompt_template": "Extract information from this cheque. Focus on: Cheque number, date, payee name, amount in words and figures, account number, bank name, and IFSC code."
+    },
+    {
+      "id": "deposit_slip",
+      "name": "Deposit Slip",
+      "description": "Bank deposit slip or pay-in slip",
+      "category": "banking",
+      "country": "india",
+      "fields": [
+        {
+          "name": "slip_number",
+          "label": "Deposit Slip Number",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Deposit slip serial number"
+        },
+        {
+          "name": "deposit_date",
+          "label": "Deposit Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of deposit"
+        },
+        {
+          "name": "account_holder_name",
+          "label": "Account Holder Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of account holder"
+        },
+        {
+          "name": "account_number",
+          "label": "Account Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Account number for deposit"
+        },
+        {
+          "name": "deposit_amount",
+          "label": "Deposit Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Total amount deposited"
+        },
+        {
+          "name": "cash_amount",
+          "label": "Cash Amount",
+          "type": "currency",
+          "required": false,
+          "extraction_hint": "Cash portion of deposit"
+        },
+        {
+          "name": "cheque_amount",
+          "label": "Cheque Amount",
+          "type": "currency",
+          "required": false,
+          "extraction_hint": "Cheque portion of deposit"
+        },
+        {
+          "name": "bank_name",
+          "label": "Bank Name",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Name of the bank"
+        }
+      ],
+      "prompt_template": "Extract information from this deposit slip. Focus on: Slip number, deposit date, account holder name, account number, deposit amount, cash and cheque breakup, and bank name."
+    },
+    {
+      "id": "loan_agreement",
+      "name": "Loan Agreement",
+      "description": "Bank or financial institution loan agreement",
+      "category": "banking",
+      "country": "india",
+      "fields": [
+        {
+          "name": "loan_agreement_number",
+          "label": "Loan Agreement Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Loan agreement reference number"
+        },
+        {
+          "name": "agreement_date",
+          "label": "Agreement Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of loan agreement"
+        },
+        {
+          "name": "lender_name",
+          "label": "Lender Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of bank or lending institution"
+        },
+        {
+          "name": "borrower_name",
+          "label": "Borrower Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the borrower"
+        },
+        {
+          "name": "loan_amount",
+          "label": "Loan Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Principal loan amount"
+        },
+        {
+          "name": "interest_rate",
+          "label": "Interest Rate",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Rate of interest (percentage)"
+        },
+        {
+          "name": "loan_tenure",
+          "label": "Loan Tenure",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Duration/tenure of loan"
+        },
+        {
+          "name": "emi_amount",
+          "label": "EMI Amount",
+          "type": "currency",
+          "required": false,
+          "extraction_hint": "Monthly EMI amount"
+        }
+      ],
+      "prompt_template": "Extract information from this loan agreement. Focus on: Agreement number, date, lender and borrower names, loan amount, interest rate, loan tenure, and EMI amount."
+    },
+    {
+      "id": "kyc_documents",
+      "name": "KYC Documents",
+      "description": "Know Your Customer documentation for banking",
+      "category": "banking",
+      "country": "india",
+      "fields": [
+        {
+          "name": "customer_name",
+          "label": "Customer Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Full name of the customer"
+        },
+        {
+          "name": "date_of_birth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Customer's date of birth"
+        },
+        {
+          "name": "pan_number",
+          "label": "PAN Number",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "PAN card number"
+        },
+        {
+          "name": "aadhaar_number",
+          "label": "Aadhaar Number",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Aadhaar card number"
+        },
+        {
+          "name": "current_address",
+          "label": "Current Address",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Current residential address"
+        },
+        {
+          "name": "mobile_number",
+          "label": "Mobile Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Contact mobile number"
+        },
+        {
+          "name": "email_address",
+          "label": "Email Address",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Email address"
+        }
+      ],
+      "prompt_template": "Extract KYC information. Focus on: Customer name, date of birth, PAN number, Aadhaar number, current address, mobile number, and email address."
+    },
+    {
+      "id": "purchase_order",
+      "name": "Purchase Order",
+      "description": "Commercial purchase order for goods or services",
+      "category": "finance",
+      "country": "india",
+      "fields": [
+        {
+          "name": "po_number",
+          "label": "PO Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Purchase Order number"
+        },
+        {
+          "name": "po_date",
+          "label": "PO Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of purchase order"
+        },
+        {
+          "name": "vendor_name",
+          "label": "Vendor Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the vendor/supplier"
+        },
+        {
+          "name": "buyer_name",
+          "label": "Buyer/Company Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the buying company"
+        },
+        {
+          "name": "total_amount",
+          "label": "Total Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Total value of purchase order"
+        },
+        {
+          "name": "delivery_date",
+          "label": "Expected Delivery Date",
+          "type": "date",
+          "required": false,
+          "extraction_hint": "Expected or required delivery date"
+        }
+      ],
+      "prompt_template": "Extract information from this Purchase Order. Focus on: PO number, date, vendor details, buyer details, total amount, and expected delivery date."
+    },
+    {
+      "id": "invoice",
+      "name": "Invoice",
+      "description": "Commercial invoice or bill for goods/services",
+      "category": "finance",
+      "country": "india",
+      "fields": [
+        {
+          "name": "invoice_number",
+          "label": "Invoice Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Unique invoice number"
+        },
+        {
+          "name": "invoice_date",
+          "label": "Invoice Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of invoice issuance"
+        },
+        {
+          "name": "seller_name",
+          "label": "Seller/Company Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the seller"
+        },
+        {
+          "name": "buyer_name",
+          "label": "Buyer Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the buyer"
+        },
+        {
+          "name": "total_amount",
+          "label": "Total Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Total invoice amount"
+        },
+        {
+          "name": "tax_amount",
+          "label": "Tax Amount",
+          "type": "currency",
+          "required": false,
+          "extraction_hint": "Total tax amount (GST/VAT)"
+        },
+        {
+          "name": "due_date",
+          "label": "Payment Due Date",
+          "type": "date",
+          "required": false,
+          "extraction_hint": "Payment due date"
+        }
+      ],
+      "prompt_template": "Extract information from this invoice. Focus on: Invoice number, date, seller and buyer names, total amount, tax amount, and payment due date."
+    },
+    {
+      "id": "receipt",
+      "name": "Receipt",
+      "description": "Payment receipt or acknowledgement",
+      "category": "finance",
+      "country": "india",
+      "fields": [
+        {
+          "name": "receipt_number",
+          "label": "Receipt Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Receipt serial number"
+        },
+        {
+          "name": "receipt_date",
+          "label": "Receipt Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of receipt"
+        },
+        {
+          "name": "received_from",
+          "label": "Received From",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of person/entity making payment"
+        },
+        {
+          "name": "amount",
+          "label": "Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Amount received"
+        },
+        {
+          "name": "payment_mode",
+          "label": "Payment Mode",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Mode of payment (cash, cheque, online, etc.)"
+        },
+        {
+          "name": "purpose",
+          "label": "Purpose/Description",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Purpose of payment"
+        }
+      ],
+      "prompt_template": "Extract information from this receipt. Focus on: Receipt number, date, received from, amount, payment mode, and purpose."
+    },
+    {
+      "id": "quotation",
+      "name": "Quotation",
+      "description": "Price quotation or estimate for goods/services",
+      "category": "finance",
+      "country": "india",
+      "fields": [
+        {
+          "name": "quotation_number",
+          "label": "Quotation Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Quotation reference number"
+        },
+        {
+          "name": "quotation_date",
+          "label": "Quotation Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of quotation"
+        },
+        {
+          "name": "vendor_name",
+          "label": "Vendor/Supplier Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the vendor providing quote"
+        },
+        {
+          "name": "customer_name",
+          "label": "Customer Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the customer"
+        },
+        {
+          "name": "total_amount",
+          "label": "Total Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Total quoted amount"
+        },
+        {
+          "name": "validity_date",
+          "label": "Validity/Expiry Date",
+          "type": "date",
+          "required": false,
+          "extraction_hint": "Quote validity or expiry date"
+        }
+      ],
+      "prompt_template": "Extract information from this quotation. Focus on: Quotation number, date, vendor and customer names, total amount, and validity date."
+    },
+    {
+      "id": "delivery_challan",
+      "name": "Delivery Challan",
+      "description": "Goods delivery challan or dispatch note",
+      "category": "finance",
+      "country": "india",
+      "fields": [
+        {
+          "name": "challan_number",
+          "label": "Challan Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Delivery challan number"
+        },
+        {
+          "name": "challan_date",
+          "label": "Challan Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of delivery challan"
+        },
+        {
+          "name": "supplier_name",
+          "label": "Supplier Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the supplier/sender"
+        },
+        {
+          "name": "receiver_name",
+          "label": "Receiver Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the receiver"
+        },
+        {
+          "name": "delivery_address",
+          "label": "Delivery Address",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Address where goods are delivered"
+        },
+        {
+          "name": "vehicle_number",
+          "label": "Vehicle Number",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Transport vehicle number"
+        }
+      ],
+      "prompt_template": "Extract information from this delivery challan. Focus on: Challan number, date, supplier and receiver names, delivery address, and vehicle number."
+    },
+    {
+      "id": "tax_invoice",
+      "name": "Tax Invoice (GST)",
+      "description": "GST compliant tax invoice",
+      "category": "finance",
+      "country": "india",
+      "fields": [
+        {
+          "name": "invoice_number",
+          "label": "Invoice Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Tax invoice number"
+        },
+        {
+          "name": "invoice_date",
+          "label": "Invoice Date",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of invoice"
+        },
+        {
+          "name": "seller_name",
+          "label": "Seller Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Seller company name"
+        },
+        {
+          "name": "seller_gstin",
+          "label": "Seller GSTIN",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "15-character GSTIN of seller"
+        },
+        {
+          "name": "buyer_name",
+          "label": "Buyer Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Buyer name"
+        },
+        {
+          "name": "buyer_gstin",
+          "label": "Buyer GSTIN",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "GSTIN of buyer if registered"
+        },
+        {
+          "name": "taxable_amount",
+          "label": "Taxable Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Amount before tax"
+        },
+        {
+          "name": "gst_amount",
+          "label": "GST Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Total GST amount (CGST+SGST or IGST)"
+        },
+        {
+          "name": "total_amount",
+          "label": "Total Amount",
+          "type": "currency",
+          "required": true,
+          "extraction_hint": "Total invoice amount with tax"
+        }
+      ],
+      "prompt_template": "Extract information from this GST tax invoice. Focus on: Invoice number, date, seller GSTIN and name, buyer details, taxable amount, GST amount, and total amount."
+    },
+    {
+      "id": "aadhaar_card",
+      "name": "Aadhaar Card",
+      "description": "UIDAI Aadhaar card identity document",
+      "category": "personal",
+      "country": "india",
+      "fields": [
+        {
+          "name": "aadhaar_number",
+          "label": "Aadhaar Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "12-digit Aadhaar number"
+        },
+        {
+          "name": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Full name as on Aadhaar card"
+        },
+        {
+          "name": "date_of_birth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of birth"
+        },
+        {
+          "name": "gender",
+          "label": "Gender",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Male/Female/Other"
+        },
+        {
+          "name": "address",
+          "label": "Address",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Complete address with PIN code"
+        }
+      ],
+      "prompt_template": "Extract information from this Aadhaar card. Focus on: 12-digit Aadhaar number, full name, date of birth, gender, and complete address."
+    },
+    {
+      "id": "pan_card",
+      "name": "PAN Card",
+      "description": "Permanent Account Number card",
+      "category": "personal",
+      "country": "india",
+      "fields": [
+        {
+          "name": "pan_number",
+          "label": "PAN Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "10-character PAN number"
+        },
+        {
+          "name": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Full name as on PAN card"
+        },
+        {
+          "name": "father_name",
+          "label": "Father's Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Father's name"
+        },
+        {
+          "name": "date_of_birth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of birth"
+        }
+      ],
+      "prompt_template": "Extract information from this PAN card. Focus on: 10-character PAN number, full name, father's name, and date of birth."
+    },
+    {
+      "id": "passport",
+      "name": "Passport",
+      "description": "Indian passport document",
+      "category": "personal",
+      "country": "india",
+      "fields": [
+        {
+          "name": "passport_number",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Passport number"
+        },
+        {
+          "name": "surname",
+          "label": "Surname",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Surname/Last name"
+        },
+        {
+          "name": "given_name",
+          "label": "Given Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Given name/First name"
+        },
+        {
+          "name": "date_of_birth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of birth"
+        },
+        {
+          "name": "place_of_birth",
+          "label": "Place of Birth",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Place of birth"
+        },
+        {
+          "name": "date_of_issue",
+          "label": "Date of Issue",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Passport issue date"
+        },
+        {
+          "name": "date_of_expiry",
+          "label": "Date of Expiry",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Passport expiry date"
+        },
+        {
+          "name": "nationality",
+          "label": "Nationality",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Nationality"
+        }
+      ],
+      "prompt_template": "Extract information from this passport. Focus on: Passport number, surname, given name, date of birth, place of birth, issue and expiry dates, and nationality."
+    },
+    {
+      "id": "driving_license",
+      "name": "Driving License",
+      "description": "Indian driving license",
+      "category": "personal",
+      "country": "india",
+      "fields": [
+        {
+          "name": "license_number",
+          "label": "License Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Driving license number"
+        },
+        {
+          "name": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Full name of license holder"
+        },
+        {
+          "name": "father_or_spouse_name",
+          "label": "Father's/Spouse Name",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Father's or spouse name"
+        },
+        {
+          "name": "date_of_birth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of birth"
+        },
+        {
+          "name": "address",
+          "label": "Address",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Residential address"
+        },
+        {
+          "name": "date_of_issue",
+          "label": "Date of Issue",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "License issue date"
+        },
+        {
+          "name": "valid_till",
+          "label": "Valid Till",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "License validity date"
+        },
+        {
+          "name": "vehicle_class",
+          "label": "Vehicle Class",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Authorized vehicle class (e.g., LMV, MCWG)"
+        }
+      ],
+      "prompt_template": "Extract information from this driving license. Focus on: License number, name, father's/spouse name, date of birth, address, issue and validity dates, and vehicle class."
+    },
+    {
+      "id": "voter_id",
+      "name": "Voter ID Card",
+      "description": "Election Commission Voter ID card (EPIC)",
+      "category": "personal",
+      "country": "india",
+      "fields": [
+        {
+          "name": "epic_number",
+          "label": "EPIC Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Voter ID card number"
+        },
+        {
+          "name": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Full name of voter"
+        },
+        {
+          "name": "father_or_husband_name",
+          "label": "Father's/Husband's Name",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Father's or husband's name"
+        },
+        {
+          "name": "date_of_birth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": false,
+          "extraction_hint": "Date of birth if mentioned"
+        },
+        {
+          "name": "age",
+          "label": "Age",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Age of voter"
+        },
+        {
+          "name": "address",
+          "label": "Address",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Residential address"
+        },
+        {
+          "name": "gender",
+          "label": "Gender",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Gender (Male/Female/Other)"
+        }
+      ],
+      "prompt_template": "Extract information from this Voter ID card. Focus on: EPIC number, name, father's/husband's name, date of birth or age, address, and gender."
+    },
+    {
+      "id": "birth_certificate",
+      "name": "Birth Certificate",
+      "description": "Government issued birth certificate",
+      "category": "personal",
+      "country": "india",
+      "fields": [
+        {
+          "name": "certificate_number",
+          "label": "Certificate Number",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Birth certificate registration number"
+        },
+        {
+          "name": "child_name",
+          "label": "Child's Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Name of the child"
+        },
+        {
+          "name": "date_of_birth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "extraction_hint": "Date of birth"
+        },
+        {
+          "name": "place_of_birth",
+          "label": "Place of Birth",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Place of birth (hospital, city)"
+        },
+        {
+          "name": "father_name",
+          "label": "Father's Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Father's name"
+        },
+        {
+          "name": "mother_name",
+          "label": "Mother's Name",
+          "type": "text",
+          "required": true,
+          "extraction_hint": "Mother's name"
+        },
+        {
+          "name": "gender",
+          "label": "Gender",
+          "type": "text",
+          "required": false,
+          "extraction_hint": "Gender of child"
+        },
+        {
+          "name": "registration_date",
+          "label": "Registration Date",
+          "type": "date",
+          "required": false,
+          "extraction_hint": "Date of registration"
+        }
+      ],
+      "prompt_template": "Extract information from this birth certificate. Focus on: Certificate number, child's name, date and place of birth, father's and mother's names, gender, and registration date."
+    }
+  ]
+}
