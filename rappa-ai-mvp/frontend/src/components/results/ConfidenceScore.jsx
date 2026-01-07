@@ -1,3 +1,5 @@
+import Badge from '../ui/Badge';
+
 export default function ConfidenceScore({ confidence, size = 'md' }) {
   // Convert to percentage if needed
   // Handle input: support both 0-1 (probability) and 0-100 (percentage) scales
@@ -10,27 +12,28 @@ export default function ConfidenceScore({ confidence, size = 'md' }) {
 
   const score = parseScore(confidence);
 
-  // Determine color based on confidence level
-  const getColor = () => {
-    if (score >= 95) return { bg: 'bg-green-100', text: 'text-green-700', ring: 'ring-green-600' };
-    if (score >= 85) return { bg: 'bg-blue-100', text: 'text-blue-700', ring: 'ring-blue-600' };
-    if (score >= 70) return { bg: 'bg-yellow-100', text: 'text-yellow-700', ring: 'ring-yellow-600' };
-    return { bg: 'bg-red-100', text: 'text-red-700', ring: 'ring-red-600' };
+  // Determine variant based on confidence level
+  const getVariant = () => {
+    if (score >= 95) return 'success';
+    if (score >= 85) return 'info';
+    if (score >= 70) return 'warning';
+    return 'error';
   };
 
-  const colors = getColor();
+  const variant = getVariant();
 
-  const sizeClasses = {
-    sm: 'text-xs px-2 py-0.5',
-    md: 'text-sm px-3 py-1',
-    lg: 'text-base px-4 py-2'
+  // Icon indicator based on score
+  const getIcon = () => {
+    if (score >= 95) return '✓';
+    if (score >= 85) return '●';
+    if (score >= 70) return '!';
+    return '✕';
   };
 
   return (
-    <div className={`inline-flex items-center gap-2 ${colors.bg} rounded-lg ${sizeClasses[size]} font-semibold ${colors.text}`}>
-      {/* Confidence Icon/Indicator */}
-      <div className={`w-2 h-2 rounded-full ${colors.ring.replace('ring-', 'bg-')}`}></div>
-      <span>{score.toFixed(2)}%</span>
-    </div>
+    <Badge variant={variant} size={size}>
+      <span className="font-bold">{getIcon()}</span>
+      <span>{score.toFixed(1)}%</span>
+    </Badge>
   );
 }

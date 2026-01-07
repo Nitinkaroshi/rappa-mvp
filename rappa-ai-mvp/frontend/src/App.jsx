@@ -46,6 +46,10 @@ const LoadingFallback = () => (
   </div>
 );
 
+const PublicHelp = lazy(() => import('./pages/public/PublicHelp'));
+const PublicSupport = lazy(() => import('./pages/public/PublicSupport'));
+const ApiDocs = lazy(() => import('./pages/public/ApiDocs'));
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -94,6 +98,11 @@ function App() {
             <Route path="/use-cases" element={<><Header /><UseCases /><Footer /></>} />
             <Route path="/features" element={<><Header /><Features /><Footer /></>} />
             <Route path="/contact" element={<><Header /><Contact /><Footer /></>} />
+
+            {/* Public Resources */}
+            <Route path="/docs" element={<PublicHelp />} />
+            <Route path="/api-docs" element={<ApiDocs />} />
+            <Route path="/contact-us" element={<PublicSupport />} />
 
             {/* Auth pages */}
             <Route path="/login" element={<Login />} />

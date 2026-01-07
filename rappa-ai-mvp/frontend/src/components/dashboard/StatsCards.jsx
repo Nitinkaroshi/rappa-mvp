@@ -1,74 +1,55 @@
-import { FileText, Clock, CheckCircle, TrendingUp } from 'lucide-react';
+import { FileText, Clock, CheckCircle, TrendingUp, AlertCircle } from 'lucide-react';
+import StatCard from '../ui/StatCard';
 
 export default function StatsCards({ stats }) {
   const cards = [
     {
-      title: 'Total Documents',
-      value: stats.total,
-      icon: FileText,
-      color: 'indigo',
-      bgGradient: 'bg-gradient-to-br from-indigo-500 to-indigo-600',
-      iconBg: 'bg-white',
-      iconColor: 'text-indigo-600',
-      textColor: 'text-white',
-      borderColor: 'border-indigo-300'
+      label: 'Total Documents',
+      value: stats.total.toLocaleString(),
+      icon: <FileText size={20} />,
+      variant: 'primary',
+      trend: null,
     },
     {
-      title: 'Pending',
-      value: stats.queued + stats.processing,
-      icon: Clock,
-      color: 'yellow',
-      bgGradient: 'bg-gradient-to-br from-yellow-500 to-amber-600',
-      iconBg: 'bg-white',
-      iconColor: 'text-yellow-600',
-      textColor: 'text-white',
-      borderColor: 'border-yellow-300'
+      label: 'Pending',
+      value: (stats.queued + stats.processing).toLocaleString(),
+      icon: <Clock size={20} />,
+      variant: 'warning',
+      trend: stats.queued + stats.processing > 0 ? `${stats.processing} processing` : null,
     },
     {
-      title: 'Completed',
-      value: stats.completed,
-      icon: CheckCircle,
-      color: 'green',
-      bgGradient: 'bg-gradient-to-br from-green-500 to-emerald-600',
-      iconBg: 'bg-white',
-      iconColor: 'text-green-600',
-      textColor: 'text-white',
-      borderColor: 'border-green-300'
+      label: 'Completed',
+      value: stats.completed.toLocaleString(),
+      icon: <CheckCircle size={20} />,
+      variant: 'success',
+      trend: stats.total > 0 ? `${((stats.completed / stats.total) * 100).toFixed(0)}% of total` : null,
     },
     {
-      title: 'Success Rate',
+      label: 'Success Rate',
       value: `${stats.successRate}%`,
-      icon: TrendingUp,
-      color: 'purple',
-      bgGradient: 'bg-gradient-to-br from-purple-500 to-purple-600',
-      iconBg: 'bg-white',
-      iconColor: 'text-purple-600',
-      textColor: 'text-white',
-      borderColor: 'border-purple-300'
-    }
+      icon: <TrendingUp size={20} />,
+      variant: stats.successRate >= 90 ? 'success' : stats.successRate >= 70 ? 'info' : 'error',
+      trend: stats.failed > 0 ? `${stats.failed} failed` : 'All good!',
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {cards.map((card) => {
-        const Icon = card.icon;
-        return (
-          <div
-            key={card.title}
-            className={`${card.bgGradient} rounded-xl shadow-lg border ${card.borderColor} p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300 transform`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-white/90 mb-2 uppercase tracking-wide">{card.title}</p>
-                <p className={`text-4xl font-bold ${card.textColor} drop-shadow-sm`}>{card.value}</p>
-              </div>
-              <div className={`${card.iconBg} p-3 rounded-xl shadow-md`}>
-                <Icon size={32} className={card.iconColor} strokeWidth={2.5} />
-              </div>
-            </div>
-          </div>
-        );
-      })}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up">
+      {cards.map((card, index) => (
+        <div
+          key={card.label}
+          style={{ animationDelay: `${index * 50}ms` }}
+          className="animate-slide-in-up"
+        >
+          <StatCard
+            label={card.label}
+            value={card.value}
+            icon={card.icon}
+            variant={card.variant}
+            trend={card.trend}
+          />
+        </div>
+      ))}
     </div>
   );
 }

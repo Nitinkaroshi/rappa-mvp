@@ -1,15 +1,25 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { User, Bell, Lock, CreditCard, Globe, Save } from 'lucide-react';
 import { authAPI } from '../services/api';
 import Sidebar from '../components/dashboard/Sidebar';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
+import { Card, Button, Badge } from '../components/ui';
 
 function Settings() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [user, setUser] = useState(null);
   const [sidebarMinimized, setSidebarMinimized] = useState(false);
-  const [activeTab, setActiveTab] = useState('profile');
+
+  // Initialize tab from URL or default to 'profile'
+  const initialTab = searchParams.get('tab') || 'profile';
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Sync state with URL when tab changes
+  useEffect(() => {
+    setSearchParams({ tab: activeTab });
+  }, [activeTab, setSearchParams]);
 
   useEffect(() => {
     async function load() {
@@ -43,280 +53,207 @@ function Settings() {
         onLogout={handleLogout}
         isMinimized={sidebarMinimized}
         onToggleMinimize={() => setSidebarMinimized(!sidebarMinimized)}
+        activePath="/settings"
       />
-      <div className="flex-1 flex flex-col min-w-0">
-        <DashboardHeader user={user} />
-        <main className="flex-1 p-6">
-          <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600 mt-1">Manage your account settings and preferences</p>
-        </div>
-
-        {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-indigo-600 text-indigo-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <Icon size={18} />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Content */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          {activeTab === 'profile' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900">Profile Information</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="John Doe"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="john@example.com"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Company
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Acme Inc."
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="+1 (555) 123-4567"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  Cancel
-                </button>
-                <button className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
-                  <Save size={18} />
-                  Save Changes
-                </button>
-              </div>
+      <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
+        <DashboardHeader user={user} onLogout={handleLogout} title="Settings" />
+        <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
+          <div className="max-w-4xl mx-auto space-y-6 animate-fade-in-up">
+            {/* Header */}
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
+              <p className="text-gray-600 mt-1">Manage your account profile, preferences, and improvements</p>
             </div>
-          )}
 
-          {activeTab === 'notifications' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900">Notification Preferences</h2>
+            <Card className="min-h-[600px] flex flex-col md:flex-row overflow-hidden">
+              {/* Sidebar Tabs */}
+              <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-gray-100 bg-gray-50/50 p-4">
+                <nav className="space-y-1">
+                  {tabs.map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${isActive
+                            ? 'bg-white text-primary-600 shadow-sm ring-1 ring-gray-200'
+                            : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
+                          }`}
+                      >
+                        <Icon size={18} className={isActive ? 'text-primary-600' : 'text-gray-400'} />
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
 
-              <div className="space-y-4">
-                {[
-                  { label: 'Email notifications for completed jobs', description: 'Receive an email when your document processing is complete' },
-                  { label: 'Weekly summary emails', description: 'Get a weekly summary of your document processing activity' },
-                  { label: 'Marketing emails', description: 'Receive updates about new features and promotions' },
-                  { label: 'Security alerts', description: 'Get notified about important security updates' },
-                ].map((item, index) => (
-                  <div key={index} className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg">
-                    <input
-                      type="checkbox"
-                      defaultChecked={index < 2}
-                      className="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                    />
-                    <div className="flex-1">
-                      <label className="font-medium text-gray-900">{item.label}</label>
-                      <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+              {/* Content Area */}
+              <div className="flex-1 p-6 md:p-8">
+                {activeTab === 'profile' && (
+                  <div className="space-y-6 animate-fade-in">
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Profile Information</h2>
+                      <p className="text-sm text-gray-500">Update your account's profile information and email address.</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" defaultValue={user?.full_name || "John Doe"} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Email Address</label>
+                        <input type="email" defaultValue={user?.email || "john@example.com"} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Company</label>
+                        <input type="text" placeholder="Acme Inc." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Phone Number</label>
+                        <input type="tel" placeholder="+1 (555) 123-4567" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
+                      </div>
+                    </div>
+                    <div className="flex justify-end pt-6 border-t border-gray-100">
+                      <Button variant="primary" icon={<Save size={18} />}>Save Changes</Button>
                     </div>
                   </div>
-                ))}
-              </div>
+                )}
 
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  Cancel
-                </button>
-                <button className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
-                  <Save size={18} />
-                  Save Preferences
-                </button>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'security' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900">Security Settings</h2>
-
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-4">Change Password</h3>
-                  <div className="space-y-4">
+                {activeTab === 'notifications' && (
+                  <div className="space-y-6 animate-fade-in">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Current Password
-                      </label>
-                      <input
-                        type="password"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      />
+                      <h2 className="text-lg font-bold text-gray-900">Notification Preferences</h2>
+                      <p className="text-sm text-gray-500">Choose what you want to be notified about.</p>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        New Password
-                      </label>
-                      <input
-                        type="password"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      />
+                    <div className="space-y-4">
+                      {[
+                        { label: 'Email notifications for completed jobs', desc: 'Receive an email when your document processing is complete' },
+                        { label: 'Weekly summary emails', desc: 'Get a weekly summary of your document processing activity' },
+                        { label: 'Marketing emails', desc: 'Receive updates about new features and promotions' },
+                        { label: 'Security alerts', desc: 'Get notified about important security updates' },
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors">
+                          <input type="checkbox" defaultChecked={idx < 2} className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" />
+                          <div>
+                            <label className="font-medium text-gray-900 block">{item.label}</label>
+                            <span className="text-sm text-gray-500">{item.desc}</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Confirm New Password
-                      </label>
-                      <input
-                        type="password"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      />
+                    <div className="flex justify-end pt-6 border-t border-gray-100">
+                      <Button variant="primary" icon={<Save size={18} />}>Save Preferences</Button>
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="pt-6 border-t">
-                  <h3 className="font-medium text-gray-900 mb-4">Two-Factor Authentication</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Add an extra layer of security to your account
-                  </p>
-                  <button className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
-                    Enable 2FA
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  Cancel
-                </button>
-                <button className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
-                  <Save size={18} />
-                  Update Password
-                </button>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'billing' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900">Billing & Subscription</h2>
-
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-lg border border-indigo-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Free Plan</h3>
-                    <p className="text-sm text-gray-600 mt-1">10 credits per month</p>
+                {activeTab === 'security' && (
+                  <div className="space-y-8 animate-fade-in">
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Security Settings</h2>
+                      <p className="text-sm text-gray-500">Manage your password and security questions.</p>
+                    </div>
+                    <div className="space-y-6 max-w-md">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">Current Password</label>
+                          <input type="password" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">New Password</label>
+                          <input type="password" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">Confirm New Password</label>
+                          <input type="password" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all" />
+                        </div>
+                      </div>
+                      <Button variant="primary" icon={<Save size={18} />}>Update Password</Button>
+                    </div>
+                    <div className="pt-6 border-t border-gray-100">
+                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div>
+                          <h3 className="font-medium text-gray-900">Two-Factor Authentication</h3>
+                          <p className="text-sm text-gray-500">Add an extra layer of security to your account.</p>
+                        </div>
+                        <Button variant="outline">Enable 2FA</Button>
+                      </div>
+                    </div>
                   </div>
-                  <button className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
-                    Upgrade Plan
-                  </button>
-                </div>
+                )}
+
+                {activeTab === 'billing' && (
+                  <div className="space-y-6 animate-fade-in">
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Billing & Subscription</h2>
+                      <p className="text-sm text-gray-500">Manage your subscription plan and payment details.</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl p-6 text-white shadow-lg">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-primary-100 text-sm font-medium mb-1">Current Plan</p>
+                          <h3 className="text-2xl font-bold">Free Tier</h3>
+                          <p className="text-primary-100 mt-2">10 credits / month</p>
+                        </div>
+                        <Badge variant="white" className="text-primary-700">Active</Badge>
+                      </div>
+                      <div className="mt-6 pt-6 border-t border-primary-500/30 flex gap-3">
+                        <button className="px-4 py-2 bg-white text-primary-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors text-sm">Upgrade Plan</button>
+                        <button className="px-4 py-2 bg-primary-800 text-white font-semibold rounded-lg hover:bg-primary-900 transition-colors text-sm">View Invoices</button>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-4">Payment Methods</h3>
+                      <div className="border border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-gray-100">
+                          <CreditCard className="text-gray-400" size={24} />
+                        </div>
+                        <p className="text-gray-500 text-sm">No payment methods added yet</p>
+                        <Button variant="outline" size="sm" className="mt-4">Add Payment Method</Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'preferences' && (
+                  <div className="space-y-6 animate-fade-in">
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Preferences</h2>
+                      <p className="text-sm text-gray-500">Customize your experience.</p>
+                    </div>
+                    <div className="space-y-6 max-w-md">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Language</label>
+                        <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all">
+                          <option>English</option>
+                          <option>Spanish</option>
+                          <option>French</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Timezone</label>
+                        <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all">
+                          <option>UTC-8 (Pacific Time)</option>
+                          <option>UTC+0 (GMT)</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Date Format</label>
+                        <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all">
+                          <option>MM/DD/YYYY</option>
+                          <option>DD/MM/YYYY</option>
+                        </select>
+                      </div>
+                      <div className="pt-4">
+                        <Button variant="primary" icon={<Save size={18} />}>Save Preferences</Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-
-              <div>
-                <h3 className="font-medium text-gray-900 mb-4">Payment Methods</h3>
-                <div className="border border-gray-200 rounded-lg p-4 text-center text-gray-500">
-                  No payment methods on file
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'preferences' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900">Preferences</h2>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Language
-                  </label>
-                  <select className="w-full md:w-64 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <option>English</option>
-                    <option>Spanish</option>
-                    <option>French</option>
-                    <option>German</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Timezone
-                  </label>
-                  <select className="w-full md:w-64 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <option>UTC-8 (Pacific Time)</option>
-                    <option>UTC-5 (Eastern Time)</option>
-                    <option>UTC+0 (GMT)</option>
-                    <option>UTC+1 (Central European Time)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date Format
-                  </label>
-                  <select className="w-full md:w-64 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <option>MM/DD/YYYY</option>
-                    <option>DD/MM/YYYY</option>
-                    <option>YYYY-MM-DD</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  Cancel
-                </button>
-                <button className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
-                  <Save size={18} />
-                  Save Preferences
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            </Card>
           </div>
         </main>
       </div>

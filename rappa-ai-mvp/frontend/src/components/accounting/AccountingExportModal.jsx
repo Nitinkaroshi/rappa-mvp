@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, FileText, Download, AlertCircle, CheckCircle, ArrowRight, ArrowLeft, Save, Trash2 } from 'lucide-react';
+import { X, FileText, Download, AlertCircle, CheckCircle, ArrowRight, ArrowLeft, Save, Trash2, Calculator } from 'lucide-react';
 import { accountingExportAPI } from '../../services/api';
+import { Button, Badge } from '../ui';
 
 function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
   const [step, setStep] = useState(1); // 1: Select Software, 2: Configure, 3: Preview
@@ -18,7 +19,6 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
   const [newConfigName, setNewConfigName] = useState('');
   const [saveAsDefault, setSaveAsDefault] = useState(false);
 
-  // Load supported software on mount
   useEffect(() => {
     if (isOpen) {
       loadSupportedSoftware();
@@ -44,23 +44,19 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
 
     try {
       setLoading(true);
-      // Load config schema
       const schemaData = await accountingExportAPI.getConfigSchema(software.id);
       setConfigSchema(schemaData);
       setConfig(schemaData.default_config);
 
-      // Load saved configs
       const configs = await accountingExportAPI.getSavedConfigs(software.id);
       setSavedConfigs(configs);
 
-      // Auto-load default config if exists
       const defaultConfig = configs.find(c => c.is_default);
       if (defaultConfig) {
         setConfig(defaultConfig.config);
         setSelectedConfigId(defaultConfig.id);
       }
 
-      // Validate data (use jobIds if batch export, otherwise jobId)
       const idsToValidate = jobIds || [jobId];
       const validationData = await accountingExportAPI.validateData(idsToValidate[0], software.id);
       setValidation(validationData);
@@ -81,7 +77,6 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
       setConfig(savedConfig.config);
       setSelectedConfigId(savedConfig.id);
     } else {
-      // New configuration
       setConfig(configSchema.default_config);
       setSelectedConfigId(null);
     }
@@ -97,7 +92,6 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
         saveAsDefault
       );
 
-      // Reload saved configs
       const configs = await accountingExportAPI.getSavedConfigs(selectedSoftware.id);
       setSavedConfigs(configs);
 
@@ -151,7 +145,6 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
   const handlePreview = async () => {
     try {
       setLoading(true);
-      // Use first jobId for preview (batch exports will show combined preview)
       const previewJobId = jobIds ? jobIds[0] : jobId;
       const previewData = await accountingExportAPI.previewExport(
         previewJobId,
@@ -173,26 +166,13 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
   const handleDownload = async () => {
     try {
       setLoading(true);
-
-      // Check if batch export
       if (jobIds && jobIds.length > 1) {
         const filename = `${selectedSoftware.id}_batch_export_${Date.now()}.${selectedSoftware.file_format.toLowerCase()}`;
-        await accountingExportAPI.batchExport(
-          jobIds,
-          selectedSoftware.id,
-          config,
-          filename
-        );
+        await accountingExportAPI.batchExport(jobIds, selectedSoftware.id, config, filename);
       } else {
         const filename = `${selectedSoftware.id}_export_job${jobId}_${Date.now()}.${selectedSoftware.file_format.toLowerCase()}`;
-        await accountingExportAPI.generateExport(
-          jobId,
-          selectedSoftware.id,
-          config,
-          filename
-        );
+        await accountingExportAPI.generateExport(jobId, selectedSoftware.id, config, filename);
       }
-
       setError(null);
       alert('Export file downloaded successfully!');
       onClose();
@@ -218,97 +198,82 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all">
+      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-fade-in-up">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
           <div className="flex items-center gap-3">
-            <FileText className="w-6 h-6 text-green-600" />
+            <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
+              <Calculator size={24} />
+            </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Export to Accounting Software
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900">Export to Accounting</h2>
               {jobIds && jobIds.length > 1 && (
-                <p className="text-sm text-gray-600 mt-1">
-                  Batch export: {jobIds.length} jobs selected
-                </p>
+                <p className="text-sm text-gray-500 mt-1">Batch export: {jobIds.length} jobs selected</p>
               )}
             </div>
           </div>
-          <button
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100">
             <X size={24} />
           </button>
         </div>
 
         {/* Progress Steps */}
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className={`flex items-center gap-2 ${step >= 1 ? 'text-green-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
-                1
-              </div>
-              <span className="font-medium">Select Software</span>
-            </div>
-            <ArrowRight className="text-gray-400" size={20} />
-            <div className={`flex items-center gap-2 ${step >= 2 ? 'text-green-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
-                2
-              </div>
-              <span className="font-medium">Configure</span>
-            </div>
-            <ArrowRight className="text-gray-400" size={20} />
-            <div className={`flex items-center gap-2 ${step >= 3 ? 'text-green-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
-                3
-              </div>
-              <span className="font-medium">Preview & Download</span>
-            </div>
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center justify-between max-w-2xl mx-auto">
+            {['Select Software', 'Configure', 'Preview & Download'].map((label, idx) => {
+              const stepNum = idx + 1;
+              const isActive = step >= stepNum;
+              const isCurrent = step === stepNum;
+              return (
+                <div key={idx} className={`flex items-center gap-2 ${isActive ? 'text-primary-600' : 'text-gray-400'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${isActive ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-500'
+                    }`}>
+                    {isCurrent ? stepNum : (isActive ? <CheckCircle size={16} /> : stepNum)}
+                  </div>
+                  <span className={`font-medium text-sm ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{label}</span>
+                  {idx < 2 && <ArrowRight size={16} className="ml-4 text-gray-300" />}
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="flex-1 overflow-y-auto px-6 py-6 bg-white">
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-red-800">{error}</div>
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 text-red-700">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <div className="text-sm font-medium">{error}</div>
             </div>
           )}
 
           {/* Step 1: Select Software */}
           {step === 1 && (
-            <div className="space-y-4">
-              <p className="text-gray-600 mb-4">
-                Select the accounting software you want to export to:
-              </p>
+            <div className="max-w-3xl mx-auto">
+              <p className="text-gray-600 mb-6 text-center">Select the accounting software you want to export your data to:</p>
               {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-                  <p className="mt-2 text-gray-500">Loading...</p>
-                </div>
+                <div className="flex justify-center p-12"><div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div></div>
               ) : (
-                <div className="grid gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
                   {supportedSoftware.map((software) => (
                     <button
                       key={software.id}
                       onClick={() => handleSelectSoftware(software)}
-                      className="border-2 border-gray-200 rounded-lg p-4 hover:border-green-600 hover:bg-green-50 transition-all text-left"
+                      className="group border-2 border-gray-100 rounded-xl p-5 hover:border-primary-500 hover:bg-primary-50/30 transition-all text-left relative overflow-hidden"
                     >
-                      <div className="flex items-start justify-between">
+                      <div className="flex items-start justify-between relative z-10">
                         <div>
-                          <h3 className="font-semibold text-lg text-gray-900">{software.name}</h3>
-                          <p className="text-sm text-gray-600 mt-1">{software.description}</p>
-                          <div className="flex items-center gap-4 mt-2">
-                            <span className="text-xs text-gray-500">Format: {software.file_format}</span>
-                            <span className="text-xs text-gray-500">
-                              Required fields: {software.required_fields.length}
-                            </span>
+                          <h3 className="font-bold text-lg text-gray-900 group-hover:text-primary-700">{software.name}</h3>
+                          <p className="text-sm text-gray-500 mt-1">{software.description}</p>
+                          <div className="flex items-center gap-2 mt-4">
+                            <Badge variant="secondary" size="sm">{software.file_format}</Badge>
+                            <span className="text-xs text-gray-400">{software.required_fields.length} required fields</span>
                           </div>
                         </div>
-                        <ArrowRight className="text-green-600 flex-shrink-0" size={20} />
+                        <div className="bg-gray-100 p-2 rounded-lg group-hover:bg-primary-100 group-hover:text-primary-600 transition-colors">
+                          <ArrowRight size={20} />
+                        </div>
                       </div>
                     </button>
                   ))}
@@ -319,72 +284,46 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
 
           {/* Step 2: Configure */}
           {step === 2 && selectedSoftware && (
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {selectedSoftware.name} Settings
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Configure how your data should be exported
-                </p>
+            <div className="space-y-6 max-w-3xl mx-auto">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">{selectedSoftware.name} Configuration</h3>
+                  <p className="text-sm text-gray-500">Map your fields and configure export settings.</p>
+                </div>
+                {savedConfigs.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <select
+                      className="text-sm border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                      value={selectedConfigId || ''}
+                      onChange={(e) => handleLoadConfig(e.target.value)}
+                    >
+                      <option value="">Load Saved Config...</option>
+                      {savedConfigs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                    {selectedConfigId && (
+                      <Button variant="ghost" size="sm" icon={<Trash2 size={16} />} onClick={() => handleDeleteConfig(selectedConfigId)} className="text-red-500 hover:text-red-700 hover:bg-red-50" />
+                    )}
+                  </div>
+                )}
               </div>
 
-              {/* Saved Config Selector */}
-              {savedConfigs.length > 0 && (
-                <div className="flex items-center gap-3">
-                  <label className="text-sm font-medium text-gray-700">Load Saved Configuration:</label>
-                  <select
-                    value={selectedConfigId || ''}
-                    onChange={(e) => handleLoadConfig(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    <option value="">-- New Configuration --</option>
-                    {savedConfigs.map((cfg) => (
-                      <option key={cfg.id} value={cfg.id}>
-                        {cfg.name} {cfg.is_default && '(Default)'}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedConfigId && (
-                    <button
-                      onClick={() => handleDeleteConfig(selectedConfigId)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete this configuration"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {/* Validation Status */}
               {validation && (
-                <div className={`p-4 rounded-lg border ${validation.valid ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
-                  <div className="flex items-start gap-3">
-                    {validation.valid ? (
-                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    ) : (
-                      <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
-                    )}
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">
-                        {validation.valid ? 'Data Validated Successfully' : 'Validation Issues Found'}
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {validation.total_documents} documents ready for export
-                      </p>
+                <div className={`p-4 rounded-xl border ${validation.valid ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+                  <div className="flex items-start gap-4">
+                    {validation.valid ? <CheckCircle className="text-green-600 mt-1" /> : <AlertCircle className="text-amber-600 mt-1" />}
+                    <div>
+                      <h4 className={`font-bold ${validation.valid ? 'text-green-800' : 'text-amber-800'}`}>
+                        {validation.valid ? 'Ready for Export' : 'Validation Issues Found'}
+                      </h4>
+                      <p className="text-sm opacity-80 mt-1 mb-2">{validation.total_documents} documents valid.</p>
                       {validation.errors.length > 0 && (
-                        <ul className="mt-2 text-sm text-red-600 list-disc list-inside">
-                          {validation.errors.map((err, idx) => (
-                            <li key={idx}>{err}</li>
-                          ))}
+                        <ul className="text-sm text-red-600 list-disc list-inside space-y-1">
+                          {validation.errors.map((e, i) => <li key={i}>{e}</li>)}
                         </ul>
                       )}
                       {validation.warnings.length > 0 && (
-                        <ul className="mt-2 text-sm text-yellow-600 list-disc list-inside">
-                          {validation.warnings.map((warn, idx) => (
-                            <li key={idx}>{warn}</li>
-                          ))}
+                        <ul className="text-sm text-amber-700 list-disc list-inside space-y-1">
+                          {validation.warnings.map((w, i) => <li key={i}>{w}</li>)}
                         </ul>
                       )}
                     </div>
@@ -392,76 +331,51 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
                 </div>
               )}
 
-              {/* Configuration Form */}
-              <div className="space-y-4">
+              <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 space-y-4">
                 {selectedSoftware.id === 'tally' && (
                   <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Voucher Type
-                      </label>
-                      <select
-                        value={config.voucher_type || 'Purchase'}
-                        onChange={(e) => handleConfigChange('voucher_type', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      >
-                        <option value="Purchase">Purchase Voucher</option>
-                        <option value="Sales">Sales Voucher</option>
-                        <option value="Payment">Payment Voucher</option>
-                        <option value="Receipt">Receipt Voucher</option>
-                      </select>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Voucher Type</label>
+                        <select
+                          className="w-full rounded-lg border-gray-300 focus:ring-primary-500 focus:border-primary-500"
+                          value={config.voucher_type || 'Purchase'}
+                          onChange={(e) => handleConfigChange('voucher_type', e.target.value)}
+                        >
+                          <option value="Purchase">Purchase Voucher</option>
+                          <option value="Sales">Sales Voucher</option>
+                          <option value="Payment">Payment Voucher</option>
+                          <option value="Receipt">Receipt Voucher</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Party Ledger Name</label>
+                        <input
+                          type="text"
+                          className="w-full rounded-lg border-gray-300 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Sundry Creditors"
+                          value={config.ledger_mappings?.party || 'Sundry Creditors'}
+                          onChange={(e) => handleConfigChange('ledger_mappings.party', e.target.value)}
+                        />
+                      </div>
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Party Ledger Name
-                      </label>
-                      <input
-                        type="text"
-                        value={config.ledger_mappings?.party || 'Sundry Creditors'}
-                        onChange={(e) => handleConfigChange('ledger_mappings.party', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="Sundry Creditors"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        CGST Ledger Name
-                      </label>
-                      <input
-                        type="text"
-                        value={config.ledger_mappings?.cgst || 'CGST Payable'}
-                        onChange={(e) => handleConfigChange('ledger_mappings.cgst', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="CGST Payable"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        SGST Ledger Name
-                      </label>
-                      <input
-                        type="text"
-                        value={config.ledger_mappings?.sgst || 'SGST Payable'}
-                        onChange={(e) => handleConfigChange('ledger_mappings.sgst', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="SGST Payable"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        IGST Ledger Name
-                      </label>
-                      <input
-                        type="text"
-                        value={config.ledger_mappings?.igst || 'IGST Payable'}
-                        onChange={(e) => handleConfigChange('ledger_mappings.igst', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="IGST Payable"
-                      />
+                    <div className="grid grid-cols-3 gap-4">
+                      {[
+                        { label: 'CGST Ledger', key: 'cgst', def: 'CGST Payable' },
+                        { label: 'SGST Ledger', key: 'sgst', def: 'SGST Payable' },
+                        { label: 'IGST Ledger', key: 'igst', def: 'IGST Payable' },
+                      ].map(field => (
+                        <div key={field.key}>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
+                          <input
+                            type="text"
+                            className="w-full rounded-lg border-gray-300 focus:ring-primary-500 focus:border-primary-500"
+                            placeholder={field.def}
+                            value={config.ledger_mappings?.[field.key] || field.def}
+                            onChange={(e) => handleConfigChange(`ledger_mappings.${field.key}`, e.target.value)}
+                          />
+                        </div>
+                      ))}
                     </div>
                   </>
                 )}
@@ -471,38 +385,27 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
 
           {/* Step 3: Preview */}
           {step === 3 && preview && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Preview: {preview.total_count} {selectedSoftware.id === 'tally' ? 'Vouchers' : 'Records'}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Showing first {preview.preview_data.length} items
-                </p>
+            <div className="space-y-6 max-w-4xl mx-auto">
+              <div className="flex bg-gray-50 p-4 rounded-xl border border-gray-200 justify-between items-center">
+                <div>
+                  <h3 className="font-bold text-gray-900">Preview Data</h3>
+                  <p className="text-sm text-gray-500">{preview.total_count} records ready.</p>
+                </div>
+                <Badge variant="success">Validated</Badge>
               </div>
 
               <div className="space-y-3">
                 {preview.preview_data.map((item, idx) => (
-                  <div key={idx} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-gray-900">
-                        {selectedSoftware.id === 'tally' ? 'Voucher' : 'Record'} {idx + 1}
-                      </h4>
-                      <span className="text-xs text-gray-500">{item.voucher_type || item.type}</span>
+                  <div key={idx} className="bg-white border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors shadow-sm">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-bold text-gray-900">Record #{idx + 1}</h4>
+                      <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">{item.voucher_type || item.type}</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="text-gray-600">Date:</span> {item.date}
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Party:</span> {item.party_name}
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Number:</span> {item.voucher_number || item.number}
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Entries:</span> {item.ledger_entries?.length || 0}
-                      </div>
+                    <div className="grid grid-cols-4 gap-4 text-sm">
+                      <div><span className="text-gray-500 block text-xs">Date</span>{item.date}</div>
+                      <div><span className="text-gray-500 block text-xs">Party</span>{item.party_name}</div>
+                      <div><span className="text-gray-500 block text-xs">Number</span>{item.voucher_number || item.number}</div>
+                      <div><span className="text-gray-500 block text-xs">Entries</span>{item.ledger_entries?.length || 0}</div>
                     </div>
                   </div>
                 ))}
@@ -512,111 +415,74 @@ function AccountingExportModal({ isOpen, onClose, jobId, jobIds }) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
           <div>
             {step > 1 && (
-              <button
-                onClick={() => setStep(step - 1)}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900"
-                disabled={loading}
-              >
-                <ArrowLeft size={16} />
-                Back
-              </button>
+              <Button variant="ghost" onClick={() => setStep(step - 1)} icon={<ArrowLeft size={16} />}>Back</Button>
             )}
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleClose}
-              className="px-4 py-2 text-gray-700 hover:text-gray-900"
-              disabled={loading}
-            >
-              Cancel
-            </button>
+            <Button variant="outline" onClick={handleClose}>Cancel</Button>
             {step === 2 && (
               <>
-                <button
-                  onClick={() => setShowSaveDialog(true)}
-                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                  disabled={loading}
-                >
-                  <Save size={16} />
-                  Save Configuration
-                </button>
-                <button
+                <Button variant="secondary" onClick={() => setShowSaveDialog(true)} icon={<Save size={16} />}>Save Config</Button>
+                <Button
+                  variant="primary"
                   onClick={handlePreview}
                   disabled={loading || (validation && !validation.valid)}
-                  className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  loading={loading}
+                  icon={<ArrowRight size={16} />}
+                  iconPosition="right"
                 >
-                  {loading ? 'Loading...' : 'Preview'}
-                  <ArrowRight size={16} />
-                </button>
+                  Preview
+                </Button>
               </>
             )}
             {step === 3 && (
-              <button
+              <Button
+                variant="success"
                 onClick={handleDownload}
-                disabled={loading}
-                className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                loading={loading}
+                icon={<Download size={16} />}
               >
-                {loading ? 'Generating...' : 'Download Export'}
-                <Download size={16} />
-              </button>
+                Download Export
+              </Button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Save Configuration Dialog */}
+      {/* Save Dialog */}
       {showSaveDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Save Configuration</h3>
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate-fade-in-up">
+            <h3 className="text-lg font-bold mb-4">Save Configuration</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Configuration Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Config Name</label>
                 <input
                   type="text"
+                  autoFocus
+                  className="w-full rounded-lg border-gray-300 focus:ring-primary-500"
+                  placeholder="e.g. Monthly Purchase Export"
                   value={newConfigName}
                   onChange={(e) => setNewConfigName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="e.g., Purchase - ACME Corp"
-                  autoFocus
                 />
               </div>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  id="saveAsDefault"
+                  id="saveDefault"
                   checked={saveAsDefault}
                   onChange={(e) => setSaveAsDefault(e.target.checked)}
-                  className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                  className="rounded text-primary-600 focus:ring-primary-500"
                 />
-                <label htmlFor="saveAsDefault" className="text-sm text-gray-700">
-                  Set as default configuration
-                </label>
+                <label htmlFor="saveDefault" className="text-sm text-gray-700">Set as default</label>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-3 mt-6">
-              <button
-                onClick={() => {
-                  setShowSaveDialog(false);
-                  setNewConfigName('');
-                  setSaveAsDefault(false);
-                }}
-                className="px-4 py-2 text-gray-700 hover:text-gray-900"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveConfig}
-                disabled={!newConfigName.trim()}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Save
-              </button>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="ghost" onClick={() => setShowSaveDialog(false)}>Cancel</Button>
+              <Button variant="primary" onClick={handleSaveConfig} disabled={!newConfigName.trim()}>Save</Button>
             </div>
           </div>
         </div>

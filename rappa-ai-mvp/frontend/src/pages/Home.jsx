@@ -3,6 +3,8 @@ import FeaturesOverview from '../components/sections/FeaturesOverview';
 import HowItWorks from '../components/sections/HowItWorks';
 import UseCasesPreview from '../components/sections/UseCasesPreview';
 import StatsSection from '../components/sections/StatsSection';
+import FAQSection from '../components/sections/FAQSection';
+import HelpResourcesSection from '../components/sections/HelpResourcesSection';
 import CTASection from '../components/sections/CTASection';
 
 function Home() {
@@ -13,6 +15,8 @@ function Home() {
       <HowItWorks />
       <UseCasesPreview />
       <StatsSection />
+      <FAQSection />
+      <HelpResourcesSection />
       <CTASection />
     </div>
   );

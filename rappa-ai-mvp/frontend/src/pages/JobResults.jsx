@@ -10,7 +10,8 @@ import TableFieldsView from '../components/results/TableFieldsView';
 import FraudDetectionPanel from '../components/results/FraudDetectionPanel';
 import DataGridView from '../components/results/DataGridView';
 import AccountingExportModal from '../components/accounting/AccountingExportModal';
-import { ArrowLeft, RefreshCw, Download, FileJson, FileSpreadsheet, FileText, FileImage, Eye, Sparkles, X, Grid3x3, List, Calculator } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Download, FileJson, FileSpreadsheet, FileText, FileImage, Eye, Sparkles, X, Grid3x3, List, Calculator, AlertCircle } from 'lucide-react';
+import { Card, Button, Badge } from '../components/ui';
 
 export default function JobResults() {
   const { jobId } = useParams();
@@ -73,7 +74,6 @@ export default function JobResults() {
           setValidationResults(validationData);
         } catch (err) {
           console.warn('Validation failed:', err);
-          // Don't block the UI if validation fails
         }
 
         // Check for matching template if auto-detect was used (no template_id)
@@ -98,8 +98,6 @@ export default function JobResults() {
   const checkForMatchingTemplate = async (detectedType) => {
     try {
       const templates = await templatesAPI.getAll();
-
-      // Find template with matching name or document type
       const match = templates.find(t =>
         t.name.toLowerCase().includes(detectedType.toLowerCase()) ||
         detectedType.toLowerCase().includes(t.name.toLowerCase()) ||
@@ -116,7 +114,6 @@ export default function JobResults() {
   };
 
   const handleFieldsSaved = () => {
-    // Refresh job data after fields are saved
     loadJobData();
   };
 
@@ -143,9 +140,9 @@ export default function JobResults() {
   const handleSelectHighConfidence = () => {
     const highConfFields = allFields.filter(
       f => !f.field_name.startsWith('_') &&
-           !f.field_name.includes('table_') &&
-           !f.field_name.includes('row_') &&
-           parseFloat(f.confidence_score || f.confidence || 0) >= 0.95
+        !f.field_name.includes('table_') &&
+        !f.field_name.includes('row_') &&
+        parseFloat(f.confidence_score || f.confidence || 0) >= 0.95
     );
     setSelectedFieldIds(highConfFields.map(f => f.id));
   };
@@ -153,9 +150,9 @@ export default function JobResults() {
   const handleSelectRequired = () => {
     const requiredFields = allFields.filter(
       f => !f.field_name.startsWith('_') &&
-           !f.field_name.includes('table_') &&
-           !f.field_name.includes('row_') &&
-           f.is_required
+        !f.field_name.includes('table_') &&
+        !f.field_name.includes('row_') &&
+        f.is_required
     );
     setSelectedFieldIds(requiredFields.map(f => f.id));
   };
@@ -168,37 +165,20 @@ export default function JobResults() {
       const baseFilename = `results_${jobId}_${job.filename.replace(/\.[^/.]+$/, '')}`;
 
       switch (format) {
-        case 'json':
-          await exportAPI.downloadJSON(jobId, `${baseFilename}.json`);
-          break;
-        case 'csv':
-          await exportAPI.downloadCSV(jobId, `${baseFilename}.csv`);
-          break;
+        case 'json': await exportAPI.downloadJSON(jobId, `${baseFilename}.json`); break;
+        case 'csv': await exportAPI.downloadCSV(jobId, `${baseFilename}.csv`); break;
         case 'csv-selective':
-          if (selectedFieldIds.length === 0) {
-            alert('Please select at least one field to export');
-            return;
-          }
+          if (selectedFieldIds.length === 0) return alert('Please select at least one field');
           await exportAPI.downloadSelectiveCSV(jobId, selectedFieldIds, `selected_${baseFilename}.csv`);
           break;
-        case 'excel':
-          await exportAPI.downloadExcel(jobId, `${baseFilename}.xlsx`);
-          break;
-        case 'pdf':
-          await exportAPI.downloadPDF(jobId, `report_${jobId}_${job.filename.replace(/\.[^/.]+$/, '')}.pdf`);
-          break;
-        case 'tally':
-          await exportAPI.downloadTally(jobId, `tally_${jobId}_${job.filename.replace(/\.[^/.]+$/, '')}.csv`);
-          break;
+        case 'excel': await exportAPI.downloadExcel(jobId, `${baseFilename}.xlsx`); break;
+        case 'pdf': await exportAPI.downloadPDF(jobId, `report_${jobId}.pdf`); break;
+        case 'tally': await exportAPI.downloadTally(jobId, `tally_${jobId}.csv`); break;
         case 'tally-selective':
-          if (selectedFieldIds.length === 0) {
-            alert('Please select at least one field to export');
-            return;
-          }
-          await exportAPI.downloadSelectiveTally(jobId, selectedFieldIds, `selected_tally_${jobId}_${job.filename.replace(/\.[^/.]+$/, '')}.csv`);
+          if (selectedFieldIds.length === 0) return alert('Please select at least one field');
+          await exportAPI.downloadSelectiveTally(jobId, selectedFieldIds, `selected_tally_${jobId}.csv`);
           break;
-        default:
-          break;
+        default: break;
       }
     } catch (err) {
       console.error('Export failed:', err);
@@ -210,11 +190,10 @@ export default function JobResults() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-indigo-200 border-t-indigo-600 mb-4"></div>
-          <p className="text-gray-700 text-lg font-semibold">Loading job results...</p>
-          <p className="text-gray-500 text-sm mt-2">Please wait while we fetch your data</p>
+          <div className="inline-block w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-900 text-lg font-semibold">Loading job results...</p>
         </div>
       </div>
     );
@@ -225,497 +204,293 @@ export default function JobResults() {
       <div className="min-h-screen bg-gray-50">
         <nav className="bg-white shadow px-6 py-4">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <Link to="/dashboard" className="text-2xl font-bold text-indigo-600">rappa.ai</Link>
-            <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">
-              Back to Dashboard
-            </Link>
+            <Link to="/dashboard" className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">rappa.ai</Link>
+            <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">Back to Dashboard</Link>
           </div>
         </nav>
         <div className="max-w-4xl mx-auto py-12 px-6">
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <p className="text-red-600 text-lg mb-4">{error}</p>
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
-            >
-              <ArrowLeft size={20} />
-              Back to Dashboard
+          <Card className="p-8 text-center">
+            <AlertCircle size={48} className="text-error-500 mx-auto mb-4" />
+            <p className="text-error-700 text-lg mb-6">{error}</p>
+            <Link to="/dashboard">
+              <Button variant="primary" icon={<ArrowLeft size={18} />}>Back to Dashboard</Button>
             </Link>
-          </div>
+          </Card>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex flex-col">
-      {/* Compact Header */}
-      <nav className="bg-white shadow-lg border-b border-gray-100 px-4 py-2 flex-shrink-0">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header */}
+      <nav className="bg-white shadow-sm border-b border-gray-200 px-4 py-2 flex-shrink-0 z-10 relative">
         <div className="flex justify-between items-center">
-          <Link to="/dashboard" className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent hover:from-indigo-700 hover:to-purple-700 transition-all">rappa.ai</Link>
+          <Link to="/dashboard" className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+            rappa.ai
+          </Link>
 
-          {/* Job Info in Header */}
+          {/* Job Info */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-sm">
               <span className="font-semibold text-gray-900 max-w-xs truncate" title={job.filename}>
                 {job.filename}
               </span>
               <span className="text-gray-400">•</span>
-              <span className="text-gray-600">Job #{jobId}</span>
+              <span className="text-gray-500">#{jobId}</span>
               {job.template_id && (
-                <>
-                  <span className="text-gray-400">•</span>
-                  <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">
-                    {job.template_name || job.template_id}
-                  </span>
-                </>
+                <Badge variant="secondary" size="sm">{job.template_name || job.template_id}</Badge>
               )}
-              <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
-                ✓ Completed
-              </span>
+              <Badge variant="success" size="sm">Completed</Badge>
             </div>
 
-            {/* View Selector Button */}
-            <button
+            {/* View Selector */}
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<Eye size={16} />}
               onClick={() => setShowViewSelector(true)}
-              className="flex items-center gap-1 px-3 py-1.5 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-sm font-semibold"
-              title="Select view"
             >
-              <Eye size={16} />
-              <span>Select View</span>
-            </button>
+              Select View
+            </Button>
 
             {/* Export Dropdown */}
             <div className="relative">
-              <button
+              <Button
+                variant="primary"
+                size="sm"
+                icon={<Download size={16} />}
                 onClick={() => setShowExportMenu(!showExportMenu)}
                 disabled={exporting}
-                className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 text-sm font-semibold"
-                title="Export results"
+                loading={exporting}
               >
-                <Download size={16} />
-                <span>Export</span>
-              </button>
+                Export
+              </Button>
 
               {showExportMenu && (
                 <>
-                  {/* Backdrop to close menu when clicking outside */}
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setShowExportMenu(false)}
-                  />
-
-                  {/* Dropdown Menu */}
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 py-1 z-20 animate-in fade-in slide-in-from-top-2 duration-200">
-                    {/* Selective Export Section (if fields selected) */}
+                  <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-1 z-20 animate-fade-in-up origin-top-right">
                     {selectedFieldIds.length > 0 && (
                       <>
-                        <div className="px-4 py-2 bg-indigo-50 border-b border-indigo-200">
-                          <p className="text-xs font-semibold text-indigo-700">
-                            {selectedFieldIds.length} field{selectedFieldIds.length !== 1 ? 's' : ''} selected
+                        <div className="px-4 py-2 bg-primary-50 border-b border-primary-100">
+                          <p className="text-xs font-semibold text-primary-700">
+                            {selectedFieldIds.length} fields selected
                           </p>
                         </div>
-                        <button
-                          onClick={() => handleExport('csv-selective')}
-                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 font-semibold"
-                        >
-                          <FileText size={16} />
-                          <span>Export Selected (CSV)</span>
+                        <button onClick={() => handleExport('csv-selective')} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors font-medium">
+                          <FileText size={16} /> Export Selected (CSV)
                         </button>
-                        <button
-                          onClick={() => handleExport('tally-selective')}
-                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 font-semibold"
-                        >
-                          <Calculator size={16} />
-                          <span>Export Selected (Tally)</span>
+                        <button onClick={() => handleExport('tally-selective')} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors font-medium">
+                          <Calculator size={16} /> Export Selected (Tally)
                         </button>
                         <div className="border-t border-gray-200 my-1"></div>
-                        <div className="px-4 py-2">
-                          <p className="text-xs text-gray-600">Export all fields:</p>
-                        </div>
                       </>
                     )}
-
-                    <button
-                      onClick={() => handleExport('json')}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-all duration-150 font-medium"
-                    >
-                      <FileJson size={16} className="text-blue-600" />
-                      <span>Export as JSON</span>
+                    <button onClick={() => handleExport('json')} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+                      <FileJson size={16} className="text-blue-500" /> Export as JSON
                     </button>
-                    <button
-                      onClick={() => handleExport('csv')}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-all duration-150 font-medium"
-                    >
-                      <FileText size={16} className="text-green-600" />
-                      <span>Export as CSV</span>
+                    <button onClick={() => handleExport('csv')} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+                      <FileText size={16} className="text-green-500" /> Export as CSV
                     </button>
-                    <button
-                      onClick={() => handleExport('excel')}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-all duration-150 font-medium"
-                    >
-                      <FileSpreadsheet size={16} className="text-emerald-600" />
-                      <span>Export as Excel</span>
+                    <button onClick={() => handleExport('excel')} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+                      <FileSpreadsheet size={16} className="text-emerald-500" /> Export as Excel
                     </button>
-                    <button
-                      onClick={() => handleExport('pdf')}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-all duration-150 font-medium"
-                    >
-                      <FileImage size={16} className="text-red-600" />
-                      <span>Export as PDF</span>
+                    <button onClick={() => handleExport('pdf')} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+                      <FileImage size={16} className="text-red-500" /> Export as PDF
                     </button>
                     <div className="border-t border-gray-200 my-1"></div>
-                    <button
-                      onClick={() => setShowAccountingExport(true)}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-150"
-                    >
-                      <Calculator size={16} className="text-indigo-600" />
-                      <span className="font-semibold">Export to Accounting Software</span>
+                    <button onClick={() => setShowAccountingExport(true)} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+                      <Calculator size={16} className="text-primary-600" /> Export to Accounting
                     </button>
                   </div>
                 </>
               )}
             </div>
 
-            {/* View Mode Toggle */}
-            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            {/* View Mode */}
+            <div className="flex bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => setDataViewMode('list')}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded text-sm transition ${dataViewMode === 'list'
-                  ? 'bg-white text-indigo-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                title="List View"
+                className={`p-1.5 rounded transition ${dataViewMode === 'list' ? 'bg-white shadow text-primary-600' : 'text-gray-500 hover:text-gray-700'}`}
               >
-                <List size={16} />
-                <span>List</span>
+                <List size={18} />
               </button>
               <button
                 onClick={() => setDataViewMode('grid')}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded text-sm transition ${dataViewMode === 'grid'
-                  ? 'bg-white text-indigo-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                title="Grid View"
+                className={`p-1.5 rounded transition ${dataViewMode === 'grid' ? 'bg-white shadow text-primary-600' : 'text-gray-500 hover:text-gray-700'}`}
               >
-                <Grid3x3 size={16} />
-                <span>Grid</span>
+                <Grid3x3 size={18} />
               </button>
             </div>
 
-            <button
-              onClick={loadJobData}
-              className="flex items-center gap-1 px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition"
-              title="Refresh"
-            >
-              <RefreshCw size={16} />
-            </button>
-
-            <Link
-              to="/dashboard"
-              className="flex items-center gap-1 px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition"
-            >
-              <ArrowLeft size={16} />
-              <span className="text-sm">Back</span>
+            <Button variant="ghost" size="sm" icon={<RefreshCw size={16} />} onClick={loadJobData} title="Refresh" />
+            <Link to="/dashboard">
+              <Button variant="ghost" size="sm" icon={<ArrowLeft size={16} />}>Back</Button>
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Main Content - Full Height */}
-      <div className="flex-1 overflow-auto">
-        <div className="p-3 space-y-3">
-          {/* Template Suggestion Banner */}
-          {showTemplateSuggestion && matchingTemplate && (
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Sparkles className="text-purple-600" size={24} />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold text-purple-900">
-                      Better Results Available!
-                    </h3>
-                    <button
-                      onClick={() => setShowTemplateSuggestion(false)}
-                      className="ml-auto text-purple-600 hover:text-purple-800"
-                    >
-                      <X size={18} />
-                    </button>
-                  </div>
-                  <p className="text-sm text-purple-800 mb-3">
-                    We detected this is a <strong>{extractionMeta.documentType}</strong>.
-                    We have a specialized template "<strong>{matchingTemplate.name}</strong>" that can extract data with higher accuracy and more fields.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => navigate(`/upload?template=${matchingTemplate.id}`)}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors text-sm"
-                    >
-                      <Sparkles size={16} />
-                      Re-process with Template
-                    </button>
-                    <button
-                      onClick={() => setShowTemplateSuggestion(false)}
-                      className="px-4 py-2 bg-white hover:bg-purple-50 text-purple-700 border border-purple-300 rounded-lg font-medium transition-colors text-sm"
-                    >
-                      Continue with Current Results
-                    </button>
-                  </div>
-                  <p className="text-xs text-purple-600 mt-2">
-                    💡 Using templates provides predefined fields and better extraction accuracy
-                  </p>
-                </div>
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto p-4 space-y-4">
+        {/* Suggestion Banner */}
+        {showTemplateSuggestion && matchingTemplate && (
+          <Card className="bg-purple-50 border-purple-200 shadow-sm animate-slide-in-down">
+            <Card.Body className="flex items-start gap-4 p-4">
+              <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
+                <Sparkles size={24} />
               </div>
-            </div>
-          )}
-
-          {/* Fraud Detection Panel */}
-          {job && job.fraud_analysis && (
-            <FraudDetectionPanel fraudAnalysis={job.fraud_analysis} />
-          )}
-
-          {/* AI-Generated Document Analysis */}
-          {extractionMeta && (
-            <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden hover:shadow-2xl transition-shadow duration-300">
-              {/* Document Type & Confidence Header */}
-              <div className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 border-b border-indigo-700 p-5">
+              <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-indigo-100 mb-1 font-medium uppercase tracking-wide">Document Type</p>
-                    <h3 className="text-2xl font-bold text-white">{extractionMeta.documentType}</h3>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-indigo-100 mb-2 font-medium uppercase tracking-wide">Extraction Confidence</p>
-                    <ConfidenceIndicator confidence={extractionMeta.confidence} size="lg" showPercentage={true} />
-                  </div>
+                  <h3 className="font-semibold text-purple-900">Better Results Available!</h3>
+                  <button onClick={() => setShowTemplateSuggestion(false)} className="text-purple-400 hover:text-purple-600"><X size={18} /></button>
                 </div>
-              </div>
-
-              {/* Summary Section */}
-              <div className="p-5">
-                <div className="flex items-start gap-2 mb-3">
-                  <FileText size={20} className="text-indigo-600 mt-1 flex-shrink-0" />
-                  <h4 className="text-base font-bold text-gray-800">AI Summary</h4>
-                </div>
-                <p className="text-sm text-gray-700 leading-relaxed bg-gradient-to-br from-gray-50 to-indigo-50 p-4 rounded-lg border border-indigo-100 shadow-sm">
-                  {extractionMeta.summary}
+                <p className="text-sm text-purple-800 mt-1 mb-3">
+                  We detected this is a <strong>{extractionMeta.documentType}</strong>. Use template "<strong>{matchingTemplate.name}</strong>" for higher accuracy.
                 </p>
-              </div>
-            </div>
-          )}
-
-          {/* Dynamic View Based on Selection */}
-          {currentView === 'data_only' && (
-            <div className="space-y-3">
-              {/* General Fields Only */}
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-                <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-indigo-50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-bold text-gray-900 text-lg">General Fields</h3>
-                      {validationResults && validationResults.invalid_count > 0 && (
-                        <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-semibold shadow-sm">
-                          {validationResults.invalid_count} format {validationResults.invalid_count === 1 ? 'error' : 'errors'}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setShowSelectiveExport(!showSelectiveExport)}
-                      className="text-sm px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-lg transition-all duration-200 font-semibold shadow-md hover:shadow-lg"
-                    >
-                      {showSelectiveExport ? 'Hide Selection' : 'Select Fields'}
-                    </button>
-                  </div>
-                  {showSelectiveExport && (
-                    <div className="mt-3 flex flex-wrap gap-2 text-sm">
-                      <button
-                        onClick={handleSelectAll}
-                        className="px-3 py-1.5 bg-white hover:bg-indigo-50 text-gray-700 hover:text-indigo-700 rounded-lg transition-all duration-150 border border-gray-300 hover:border-indigo-300 font-medium shadow-sm"
-                      >
-                        Select All
-                      </button>
-                      <button
-                        onClick={handleDeselectAll}
-                        className="px-3 py-1.5 bg-white hover:bg-gray-100 text-gray-700 rounded-lg transition-all duration-150 border border-gray-300 font-medium shadow-sm"
-                      >
-                        Deselect All
-                      </button>
-                      <button
-                        onClick={handleSelectHighConfidence}
-                        className="px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-all duration-150 border border-green-300 font-medium shadow-sm"
-                      >
-                        High Confidence (95%+)
-                      </button>
-                      <button
-                        onClick={handleSelectRequired}
-                        className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition-all duration-150 border border-amber-300 font-medium shadow-sm"
-                      >
-                        Required Fields
-                      </button>
-                      <span className="ml-auto px-3 py-1 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 rounded-lg font-semibold shadow-sm border border-indigo-200">
-                        {selectedFieldIds.length} selected
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <GeneralFieldsView
-                    fields={allFields}
-                    selectedFieldIds={selectedFieldIds}
-                    onFieldToggle={handleFieldToggle}
-                    showCheckboxes={showSelectiveExport}
-                    validationResults={validationResults}
-                  />
+                <div className="flex gap-2">
+                  <Button size="sm" variant="primary" onClick={() => navigate(`/upload?template=${matchingTemplate.id}`)} icon={<Sparkles size={14} />}>
+                    Re-process with Template
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setShowTemplateSuggestion(false)}>
+                    Continue with Current Results
+                  </Button>
                 </div>
               </div>
+            </Card.Body>
+          </Card>
+        )}
 
-              {/* Table Fields */}
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="p-4 border-b border-gray-200 bg-gray-50">
-                  <h3 className="font-semibold text-gray-900">Table Fields</h3>
-                </div>
-                <div className="p-4">
-                  <TableFieldsView fields={allFields} />
+        {/* Fraud Detection */}
+        {job && job.fraud_analysis && <FraudDetectionPanel fraudAnalysis={job.fraud_analysis} />}
+
+        {/* AI Summary */}
+        {extractionMeta && (
+          <Card className="overflow-hidden">
+            <div className="bg-gradient-to-r from-primary-600 to-secondary-600 p-4 flex justify-between items-center text-white">
+              <div>
+                <p className="text-xs opacity-80 uppercase tracking-wider font-semibold">Document Type</p>
+                <h3 className="text-xl font-bold">{extractionMeta.documentType}</h3>
+              </div>
+              <div className="text-right">
+                <p className="text-xs opacity-80 uppercase tracking-wider font-semibold">Confidence</p>
+                <div className="flex justify-end">
+                  <ConfidenceIndicator confidence={extractionMeta.confidence} size="lg" showPercentage invertColor />
                 </div>
               </div>
             </div>
-          )}
-
-          {currentView === 'document_fields' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3" style={{ minHeight: '600px' }}>
-              {/* Left: Document Viewer */}
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <DocumentViewer jobId={jobId} filename={job.filename} />
+            <Card.Body className="p-4">
+              <div className="flex items-center gap-2 mb-2 text-gray-900 font-bold">
+                <FileText size={18} className="text-primary-600" /> AI Summary
               </div>
+              <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                {extractionMeta.summary}
+              </p>
+            </Card.Body>
+          </Card>
+        )}
 
-              {/* Right: General Fields */}
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="p-4 border-b border-gray-200 bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-semibold text-gray-900">General Fields</h3>
-                      {validationResults && validationResults.invalid_count > 0 && (
-                        <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">
-                          {validationResults.invalid_count} format {validationResults.invalid_count === 1 ? 'error' : 'errors'}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setShowSelectiveExport(!showSelectiveExport)}
-                      className="text-sm px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded transition"
-                    >
-                      {showSelectiveExport ? 'Hide Selection' : 'Select Fields'}
-                    </button>
-                  </div>
-                  {showSelectiveExport && (
-                    <div className="mt-3 flex flex-wrap gap-2 text-sm">
-                      <button onClick={handleSelectAll} className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition">
-                        Select All
-                      </button>
-                      <button onClick={handleDeselectAll} className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition">
-                        Deselect All
-                      </button>
-                      <button onClick={handleSelectHighConfidence} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded transition">
-                        High Confidence (95%+)
-                      </button>
-                      <button onClick={handleSelectRequired} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded transition">
-                        Required Fields
-                      </button>
-                      <span className="ml-auto px-3 py-1 bg-indigo-100 text-indigo-700 rounded font-medium">
-                        {selectedFieldIds.length} selected
-                      </span>
-                    </div>
-                  )}
+        {/* Views */}
+        {currentView === 'data_only' && (
+          <div className="space-y-4">
+            <Card>
+              <Card.Header className="flex justify-between items-center p-4 border-b border-gray-100">
+                <h3 className="font-bold text-gray-900">General Fields</h3>
+                <Button size="sm" variant={showSelectiveExport ? 'primary' : 'outline'} onClick={() => setShowSelectiveExport(!showSelectiveExport)}>
+                  {showSelectiveExport ? 'Hide Selection' : 'Select Fields'}
+                </Button>
+              </Card.Header>
+              {showSelectiveExport && (
+                <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 flex flex-wrap gap-2">
+                  <Button size="xs" variant="outline" onClick={handleSelectAll}>Select All</Button>
+                  <Button size="xs" variant="outline" onClick={handleDeselectAll}>Deselect All</Button>
+                  <Button size="xs" variant="success" onClick={handleSelectHighConfidence}>High Confidence</Button>
+                  <Button size="xs" variant="warning" onClick={handleSelectRequired}>Required</Button>
                 </div>
-                <div className="p-4 overflow-y-auto" style={{ maxHeight: '600px' }}>
-                  <GeneralFieldsView
-                    fields={allFields}
-                    selectedFieldIds={selectedFieldIds}
-                    onFieldToggle={handleFieldToggle}
-                    showCheckboxes={showSelectiveExport}
-                    validationResults={validationResults}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+              )}
+              <Card.Body className="p-4">
+                <GeneralFieldsView
+                  fields={allFields}
+                  selectedFieldIds={selectedFieldIds}
+                  onFieldToggle={handleFieldToggle}
+                  showCheckboxes={showSelectiveExport}
+                  validationResults={validationResults}
+                />
+              </Card.Body>
+            </Card>
+            <Card>
+              <Card.Header className="p-4 border-b border-gray-100 font-bold text-gray-900">Table Fields</Card.Header>
+              <Card.Body className="p-4"><TableFieldsView fields={allFields} /></Card.Body>
+            </Card>
+          </div>
+        )}
 
-          {currentView === 'document_tables' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3" style={{ minHeight: '600px' }}>
-              {/* Left: Document Viewer */}
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <DocumentViewer jobId={jobId} filename={job.filename} />
+        {currentView === 'document_fields' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-[600px]">
+            <Card className="h-full overflow-hidden flex flex-col">
+              <DocumentViewer jobId={jobId} filename={job.filename} />
+            </Card>
+            <Card className="h-full flex flex-col">
+              <Card.Header className="p-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="font-bold text-gray-900">General Fields</h3>
+                <Button size="sm" variant="outline" onClick={() => setShowSelectiveExport(!showSelectiveExport)}>
+                  {showSelectiveExport ? 'Done' : 'Select'}
+                </Button>
+              </Card.Header>
+              <div className="flex-1 overflow-y-auto p-4">
+                <GeneralFieldsView
+                  fields={allFields}
+                  selectedFieldIds={selectedFieldIds}
+                  onFieldToggle={handleFieldToggle}
+                  showCheckboxes={showSelectiveExport}
+                  validationResults={validationResults}
+                />
               </div>
+            </Card>
+          </div>
+        )}
 
-              {/* Right: Table Fields */}
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="p-4 border-b border-gray-200 bg-gray-50">
-                  <h3 className="font-semibold text-gray-900">Table Fields</h3>
-                </div>
-                <div className="p-4 overflow-y-auto" style={{ maxHeight: '600px' }}>
-                  <TableFieldsView fields={allFields} />
-                </div>
-              </div>
-            </div>
-          )}
+        {currentView === 'document_tables' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-[600px]">
+            <Card className="h-full overflow-hidden"><DocumentViewer jobId={jobId} filename={job.filename} /></Card>
+            <Card className="h-full flex flex-col">
+              <Card.Header className="p-4 border-b border-gray-100 font-bold text-gray-900">Table Fields</Card.Header>
+              <div className="flex-1 overflow-y-auto p-4"><TableFieldsView fields={allFields} /></div>
+            </Card>
+          </div>
+        )}
 
-          {currentView === 'full' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-[calc(100vh-140px)]">
-              {/* Left: Document Viewer */}
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <DocumentViewer jobId={jobId} filename={job.filename} />
-              </div>
-
-              {/* Right: Fields Editor or Data Grid */}
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                {dataViewMode === 'list' ? (
-                  <FieldsEditor
-                    jobId={jobId}
-                    templateId={job.template_id}
-                    onSave={handleFieldsSaved}
-                  />
-                ) : (
-                  <DataGridView
-                    fields={allFields}
-                    customFields={customFields}
-                    onFieldUpdate={async (fieldId, newValue) => {
-                      await fieldsAPI.updateField(fieldId, newValue);
-                      await loadJobData();
-                    }}
-                    onCustomFieldUpdate={async (fieldId, updates) => {
-                      await customFieldsAPI.update(fieldId, updates);
-                      await loadJobData();
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        {currentView === 'full' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-140px)]">
+            <Card className="h-full overflow-hidden flex flex-col shadow-lg border-2 border-primary-50">
+              <DocumentViewer jobId={jobId} filename={job.filename} />
+            </Card>
+            <Card className="h-full overflow-hidden flex flex-col shadow-lg">
+              {dataViewMode === 'list' ? (
+                <FieldsEditor
+                  jobId={jobId}
+                  templateId={job.template_id}
+                  onSave={handleFieldsSaved}
+                />
+              ) : (
+                <DataGridView
+                  fields={allFields}
+                  customFields={customFields}
+                  onFieldUpdate={async (id, val) => { await fieldsAPI.updateField(id, val); loadJobData(); }}
+                  onCustomFieldUpdate={async (id, up) => { await customFieldsAPI.update(id, up); loadJobData(); }}
+                />
+              )}
+            </Card>
+          </div>
+        )}
       </div>
 
-      {/* View Selector Modal */}
       {showViewSelector && (
-        <ViewSelector
-          currentView={currentView}
-          onViewChange={(view) => {
-            if (view) setCurrentView(view);
-            setShowViewSelector(false);
-          }}
-        />
+        <ViewSelector currentView={currentView} onViewChange={(view) => { if (view) setCurrentView(view); setShowViewSelector(false); }} />
       )}
-
-      {/* Accounting Export Modal */}
       {showAccountingExport && (
-        <AccountingExportModal
-          isOpen={showAccountingExport}
-          onClose={() => setShowAccountingExport(false)}
-          jobId={jobId}
-        />
+        <AccountingExportModal isOpen={showAccountingExport} onClose={() => setShowAccountingExport(false)} jobId={jobId} />
       )}
     </div>
   );

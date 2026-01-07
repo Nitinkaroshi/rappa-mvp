@@ -12,6 +12,7 @@ import {
   Boxes,
   Code
 } from 'lucide-react';
+import Card from '../ui/Card';
 
 function FeatureGrid() {
   const features = [
@@ -79,18 +80,20 @@ function FeatureGrid() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-      {features.map((feature, index) => (
-        <div
-          key={index}
-          className="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-all hover:bg-white border border-transparent hover:border-accent-yellow"
-        >
-          <div className="bg-white rounded-lg w-12 h-12 flex items-center justify-center mb-4 shadow-sm">
-            <feature.icon className="w-6 h-6 text-accent-yellow" />
-          </div>
-          <h3 className="text-lg font-bold text-accent-black mb-2">{feature.title}</h3>
-          <p className="text-sm text-gray-600">{feature.description}</p>
-        </div>
-      ))}
+      {features.map((feature, index) => {
+        const Icon = feature.icon;
+        return (
+          <Card key={index} hover>
+            <Card.Body>
+              <div className="bg-primary-50 rounded-lg w-12 h-12 flex items-center justify-center mb-4 text-primary-600">
+                <Icon className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
+              <p className="text-sm text-gray-600">{feature.description}</p>
+            </Card.Body>
+          </Card>
+        );
+      })}
     </div>
   );
 }
